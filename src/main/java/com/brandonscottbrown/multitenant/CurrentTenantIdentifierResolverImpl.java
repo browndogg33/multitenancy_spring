@@ -15,9 +15,9 @@ public class CurrentTenantIdentifierResolverImpl implements CurrentTenantIdentif
      public String resolveCurrentTenantIdentifier() {
          RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
          if (requestAttributes != null) {
-             String identifier = (String) requestAttributes.getAttribute(TENANT_ID, RequestAttributes.SCOPE_REQUEST);
-             if (identifier != null) {
-                 return identifier;
+             String tenantId = (String) requestAttributes.getAttribute(TENANT_ID, RequestAttributes.SCOPE_REQUEST);
+             if (tenantId != null) {
+                 return tenantId;
              }
          }
          return DEFAULT_TENANT_ID;
