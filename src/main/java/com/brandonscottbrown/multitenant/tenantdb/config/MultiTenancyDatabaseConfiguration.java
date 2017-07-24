@@ -19,7 +19,12 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -41,7 +46,7 @@ import java.util.Map;
 )
 public class MultiTenancyDatabaseConfiguration {
 
-     private static Logger logger = LoggerFactory.getLogger(MultiTenancyDatabaseConfiguration.class);
+     private static final Logger logger = LoggerFactory.getLogger(MultiTenancyDatabaseConfiguration.class);
     
      @Autowired
      private JpaProperties jpaProperties;
@@ -73,7 +78,6 @@ public class MultiTenancyDatabaseConfiguration {
                   .packages(Character.class.getPackage().getName())
                   .persistenceUnit("multiTenant")
                   .properties(hibernateProps)
-                  .jta(false)
                   .build();
      }
 
@@ -89,8 +93,18 @@ public class MultiTenancyDatabaseConfiguration {
                   .password(tc.getPassword())
                   .url(tc.getUrl()).build()));
 
+          initializeTenantDatabases(dataSources);
 
           return new DataSourceBasedMultiTenantConnectionProviderImpl(getDefaultTenant(tenants).getName(), dataSources);
+     }
+
+     private void initializeTenantDatabases(HashMap<String, DataSource> dataSources) {
+          for (Map.Entry<String, DataSource> entry: dataSources.entrySet()){
+               Resource initSchema = new ClassPathResource("scripts/" + entry.getKey() + "-tenant-schema-h2.sql");
+               Resource initData = new ClassPathResource("scripts/" + entry.getKey() + "-tenant-data-h2.sql");
+               DatabasePopulator databasePopulator = new ResourceDatabasePopulator(initSchema, initData);
+               DatabasePopulatorUtils.execute(databasePopulator, dataSources.get(entry.getKey()));
+          }
      }
 
      private Tenant getDefaultTenant(List<Tenant> tenants) {
@@ -99,7 +113,7 @@ public class MultiTenancyDatabaseConfiguration {
                     return t;
                }
           }
-          return tenants.get(0);
+          throw new IllegalStateException("A default tenant dataSource must be setup for the application to startup properly.");
      }
 
      @Bean(name = "primaryTenantDataSource")

@@ -2,8 +2,6 @@ package com.brandonscottbrown.multitenant.controller;
 
 import com.brandonscottbrown.multitenant.tenantdb.domain.Character;
 import com.brandonscottbrown.multitenant.tenantdb.repository.CharacterRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/characters")
 public class CharacterController {
-
-    private static final Logger logger = LoggerFactory.getLogger(CharacterController.class);
 
     @Autowired
     private CharacterRepository characterRepository;

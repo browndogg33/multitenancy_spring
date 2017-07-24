@@ -2,10 +2,13 @@ package com.brandonscottbrown.multitenant.primarydb.config;
 
 import com.brandonscottbrown.multitenant.primarydb.domain.Tenant;
 import org.hibernate.cfg.Environment;
+import org.hibernate.dialect.H2Dialect;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy;
+import org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -40,12 +43,11 @@ public class PrimaryDatabaseConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
                                                                        @Qualifier("primaryDataSource") DataSource dataSource) {
         Map<String, Object> hibernateProps = new HashMap<>();
-        hibernateProps.put(Environment.DIALECT, "org.hibernate.dialect.H2Dialect");
-        hibernateProps.put(Environment.HBM2DDL_AUTO, "");
+        hibernateProps.put(Environment.DIALECT, H2Dialect.class.getName());
+        hibernateProps.put(Environment.HBM2DDL_AUTO, "create-drop");
         hibernateProps.put(Environment.SHOW_SQL, true);
-        //TODO These need to be set
-        //hibernateProps.put(Environment.PHYSICAL_NAMING_STRATEGY, "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
-        //hibernateProps.put(Environment.IMPLICIT_NAMING_STRATEGY, "org.springframework.boot.orm.jpa.hibernate.SpringNamingStrategy");
+        hibernateProps.put(Environment.PHYSICAL_NAMING_STRATEGY, SpringPhysicalNamingStrategy.class.getName());
+        hibernateProps.put(Environment.IMPLICIT_NAMING_STRATEGY, SpringImplicitNamingStrategy.class.getName());
 
         return builder
                 .dataSource(dataSource)

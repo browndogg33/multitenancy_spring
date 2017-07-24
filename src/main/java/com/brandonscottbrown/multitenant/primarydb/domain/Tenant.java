@@ -32,7 +32,6 @@ public class Tenant {
         this.name = name;
     }
 
-    @Column(name = "default_tenant")
     public Boolean getDefaultTenant() {
         return defaultTenant;
     }
@@ -41,7 +40,6 @@ public class Tenant {
         this.defaultTenant = defaultTenant;
     }
 
-    @Column(name = "driver_class_name")
     public String getDriverClassName() {
         return driverClassName;
     }
@@ -74,12 +72,25 @@ public class Tenant {
         this.password = password;
     }
 
-    @Column(name = "separate_database")
     public Boolean getSeparateDatabase() {
         return separateDatabase;
     }
 
     public void setSeparateDatabase(Boolean separateDatabase) {
         this.separateDatabase = separateDatabase;
+    }
+
+    @Override
+    public String toString() {
+        return "Tenant{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", defaultTenant=" + defaultTenant +
+                ", driverClassName='" + driverClassName + '\'' +
+                ", url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", separateDatabase=" + separateDatabase +
+                '}';
     }
 }

@@ -1,0 +1,5 @@
+DROP TABLE CHARACTER;
+CREATE TABLE CHARACTER (id INT AUTO_INCREMENT NOT NULL,
+                   name VARCHAR NOT NULL,
+                   tenant_id VARCHAR NOT NULL,
+                   CONSTRAINT PK_CHARACTER PRIMARY KEY (id));

@@ -39,5 +39,14 @@ public class Character {
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
     }
+
+    @Override
+    public String toString() {
+        return "Character{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", tenantId='" + tenantId + '\'' +
+                '}';
+    }
 }
 
