@@ -43,6 +43,10 @@ public class PrimaryDatabaseConfiguration {
         hibernateProps.put(Environment.DIALECT, "org.hibernate.dialect.H2Dialect");
         hibernateProps.put(Environment.HBM2DDL_AUTO, "");
         hibernateProps.put(Environment.SHOW_SQL, true);
+        //TODO These need to be set
+        //hibernateProps.put(Environment.PHYSICAL_NAMING_STRATEGY, "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
+        //hibernateProps.put(Environment.IMPLICIT_NAMING_STRATEGY, "org.springframework.boot.orm.jpa.hibernate.SpringNamingStrategy");
+
         return builder
                 .dataSource(dataSource)
                 .packages(Tenant.class.getPackage().getName())

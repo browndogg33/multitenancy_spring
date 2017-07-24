@@ -1,19 +1,24 @@
 package com.brandonscottbrown.multitenant.tenantdb.config;
 
+import com.brandonscottbrown.multitenant.primarydb.domain.Tenant;
+import com.brandonscottbrown.multitenant.primarydb.repository.TenantRepository;
 import com.brandonscottbrown.multitenant.tenantdb.domain.Character;
 import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
+import org.hibernate.dialect.H2Dialect;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -22,7 +27,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -32,16 +39,15 @@ import java.util.Map;
         entityManagerFactoryRef = "tenantEntityManagerFactory",
         basePackages = { "com.brandonscottbrown.multitenant.tenantdb.repository" }
 )
-public class MultiTenancyJpaConfiguration {
+public class MultiTenancyDatabaseConfiguration {
 
-     private static Logger logger = LoggerFactory.getLogger(MultiTenancyJpaConfiguration.class);
-
-     @Autowired
-     @Qualifier("primaryTenantDataSource")
-     private DataSource dataSource;
+     private static Logger logger = LoggerFactory.getLogger(MultiTenancyDatabaseConfiguration.class);
     
      @Autowired
      private JpaProperties jpaProperties;
+
+     @Autowired
+     private TenantRepository tenantRepository;
     
      @Autowired
      private MultiTenantConnectionProvider multiTenantConnectionProvider;
@@ -50,18 +56,18 @@ public class MultiTenancyJpaConfiguration {
      private CurrentTenantIdentifierResolver currentTenantIdentifierResolver;
 
      @Bean(name = "tenantEntityManagerFactory")
-     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder) {
+     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
+                                                                        @Qualifier("primaryTenantDataSource") DataSource dataSource) {
           Map<String, Object> hibernateProps = new LinkedHashMap<>();
           hibernateProps.putAll(jpaProperties.getHibernateProperties(dataSource));
 
           hibernateProps.put(Environment.MULTI_TENANT, MultiTenancyStrategy.DATABASE);
           hibernateProps.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProvider);
           hibernateProps.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, currentTenantIdentifierResolver);
-          hibernateProps.put(Environment.DIALECT, "org.hibernate.dialect.H2Dialect");
+          hibernateProps.put(Environment.DIALECT, H2Dialect.class.getName());
           hibernateProps.put(Environment.HBM2DDL_AUTO, "");
           hibernateProps.put(Environment.SHOW_SQL, true);
 
-          logger.info("Character package scanned = {}", Character.class.getPackage().getName());
           return builder.
                   dataSource(dataSource)
                   .packages(Character.class.getPackage().getName())
@@ -69,6 +75,37 @@ public class MultiTenancyJpaConfiguration {
                   .properties(hibernateProps)
                   .jta(false)
                   .build();
+     }
+
+     @Bean(name = "multitenantProvider")
+     public DataSourceBasedMultiTenantConnectionProviderImpl dataSourceBasedMultiTenantConnectionProvider() {
+          HashMap<String, DataSource> dataSources = new HashMap<String, DataSource>();
+          List<Tenant> tenants = tenantRepository.findAll();
+
+          tenants.stream().filter(Tenant::getSeparateDatabase).forEach(tc -> dataSources.put(tc.getName(), DataSourceBuilder
+                  .create()
+                  .driverClassName(tc.getDriverClassName())
+                  .username(tc.getUsername())
+                  .password(tc.getPassword())
+                  .url(tc.getUrl()).build()));
+
+
+          return new DataSourceBasedMultiTenantConnectionProviderImpl(getDefaultTenant(tenants).getName(), dataSources);
+     }
+
+     private Tenant getDefaultTenant(List<Tenant> tenants) {
+          for (Tenant t : tenants){
+               if (t.getDefaultTenant()){
+                    return t;
+               }
+          }
+          return tenants.get(0);
+     }
+
+     @Bean(name = "primaryTenantDataSource")
+     @DependsOn("multitenantProvider")
+     public DataSource dataSource() {
+          return dataSourceBasedMultiTenantConnectionProvider().getDefaultDataSource();
      }
 
      @Bean(name = "tenantTransactionManager")

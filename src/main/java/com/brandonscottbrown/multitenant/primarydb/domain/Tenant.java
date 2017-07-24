@@ -1,14 +1,28 @@
 package com.brandonscottbrown.multitenant.primarydb.domain;
 
+import javax.persistence.*;
+
+@Entity
 public class Tenant {
 
+    private Long id;
     private String name;
-    private Boolean isDefault;
+    private Boolean defaultTenant;
     private String driverClassName;
     private String url;
     private String username;
     private String password;
     private Boolean separateDatabase;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -18,14 +32,16 @@ public class Tenant {
         this.name = name;
     }
 
-    public Boolean isDefault() {
-        return isDefault;
+    @Column(name = "default_tenant")
+    public Boolean getDefaultTenant() {
+        return defaultTenant;
     }
 
-    public void setDefault(Boolean aDefault) {
-        isDefault = aDefault;
+    public void setDefaultTenant(Boolean defaultTenant) {
+        this.defaultTenant = defaultTenant;
     }
 
+    @Column(name = "driver_class_name")
     public String getDriverClassName() {
         return driverClassName;
     }
@@ -58,10 +74,7 @@ public class Tenant {
         this.password = password;
     }
 
-    public Boolean getDefault() {
-        return isDefault;
-    }
-
+    @Column(name = "separate_database")
     public Boolean getSeparateDatabase() {
         return separateDatabase;
     }
