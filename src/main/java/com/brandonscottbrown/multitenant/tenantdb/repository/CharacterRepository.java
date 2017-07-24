@@ -1,6 +1,6 @@
-package com.brandonscottbrown.multitenant.repository;
+package com.brandonscottbrown.multitenant.tenantdb.repository;
 
-import com.brandonscottbrown.multitenant.domain.Character;
+import com.brandonscottbrown.multitenant.tenantdb.domain.Character;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

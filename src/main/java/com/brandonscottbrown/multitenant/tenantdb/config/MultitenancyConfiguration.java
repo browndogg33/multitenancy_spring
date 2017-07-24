@@ -1,6 +1,6 @@
-package com.brandonscottbrown.multitenant.config;
+package com.brandonscottbrown.multitenant.tenantdb.config;
 
-import com.brandonscottbrown.multitenant.DataSourceBasedMultiTenantConnectionProviderImpl;
+import com.brandonscottbrown.multitenant.primarydb.domain.Tenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,9 +32,9 @@ public class MultitenancyConfiguration {
         return new DataSourceBasedMultiTenantConnectionProviderImpl(multitenancyProperties.getDefaultTenant().getName(), dataSources);
     }
 
-    @Bean
+    @Bean(name = "primaryTenantDataSource")
     @DependsOn("multitenantProvider")
-    public DataSource defaultDataSource() {
+    public DataSource dataSource() {
         return dataSourceBasedMultiTenantConnectionProvider().getDefaultDataSource();
     }
 

@@ -1,4 +1,4 @@
-package com.brandonscottbrown.multitenant.config;
+package com.brandonscottbrown.multitenant.primarydb.domain;
 
 public class Tenant {
 

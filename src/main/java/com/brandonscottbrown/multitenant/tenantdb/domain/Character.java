@@ -1,4 +1,4 @@
-package com.brandonscottbrown.multitenant.domain;
+package com.brandonscottbrown.multitenant.tenantdb.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -1,4 +1,4 @@
-package com.brandonscottbrown.multitenant;
+package com.brandonscottbrown.multitenant.tenantdb.config;
 
 import org.hibernate.engine.jdbc.connections.spi.AbstractDataSourceBasedMultiTenantConnectionProviderImpl;
 

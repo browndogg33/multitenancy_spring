@@ -1,5 +1,6 @@
-package com.brandonscottbrown.multitenant.config;
+package com.brandonscottbrown.multitenant.tenantdb.config;
 
+import com.brandonscottbrown.multitenant.primarydb.domain.Tenant;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.annotation.PostConstruct;
