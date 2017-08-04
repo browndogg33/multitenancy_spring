@@ -27,6 +27,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "entityManagerFactory",
+        transactionManagerRef = "transactionManager",
         basePackages = { "com.brandonscottbrown.multitenant.primarydb.repository" }
 )
 public class PrimaryDatabaseConfiguration {

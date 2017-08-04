@@ -42,6 +42,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "tenantEntityManagerFactory",
+        transactionManagerRef = "tenantTransactionManager"
         basePackages = { "com.brandonscottbrown.multitenant.tenantdb.repository" }
 )
 public class MultiTenancyDatabaseConfiguration {
